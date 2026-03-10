@@ -9,14 +9,19 @@ interface NdaFormProps {
 
 function Field({
   label,
+  fieldId,
   children,
 }: {
   label: string;
+  fieldId?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label
+        htmlFor={fieldId}
+        className="block text-sm font-medium text-gray-700 mb-1"
+      >
         {label}
       </label>
       {children}
@@ -39,8 +44,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
           Agreement Details
         </h2>
         <div className="space-y-4">
-          <Field label="Purpose">
+          <Field label="Purpose" fieldId="field-purpose">
             <textarea
+              id="field-purpose"
               className={`${inputClass} resize-none`}
               rows={3}
               value={values.purpose}
@@ -49,8 +55,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
             />
           </Field>
 
-          <Field label="Effective Date">
+          <Field label="Effective Date" fieldId="field-effective-date">
             <input
+              id="field-effective-date"
               type="date"
               className={inputClass}
               value={values.effectiveDate}
@@ -64,6 +71,7 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 <input
                   type="radio"
                   name="mndaTermType"
+                  aria-label="Expires after"
                   checked={values.mndaTermType === "expires"}
                   onChange={() => set("mndaTermType", "expires")}
                 />
@@ -71,9 +79,10 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 <input
                   type="number"
                   min={1}
-                  className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                  aria-label="MNDA term years"
+                  className="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={values.mndaTermYears}
-                  onChange={(e) => set("mndaTermYears", Number(e.target.value))}
+                  onChange={(e) => set("mndaTermYears", Math.max(1, Number(e.target.value) || 1))}
                   disabled={values.mndaTermType !== "expires"}
                 />
                 <span className="text-sm">year(s) from Effective Date</span>
@@ -82,6 +91,7 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 <input
                   type="radio"
                   name="mndaTermType"
+                  aria-label="Continues until terminated"
                   checked={values.mndaTermType === "perpetual"}
                   onChange={() => set("mndaTermType", "perpetual")}
                 />
@@ -96,16 +106,18 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 <input
                   type="radio"
                   name="confidentialityTermType"
+                  aria-label="Confidentiality term years"
                   checked={values.confidentialityTermType === "years"}
                   onChange={() => set("confidentialityTermType", "years")}
                 />
                 <input
                   type="number"
                   min={1}
-                  className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                  aria-label="Confidentiality term year count"
+                  className="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={values.confidentialityTermYears}
                   onChange={(e) =>
-                    set("confidentialityTermYears", Number(e.target.value))
+                    set("confidentialityTermYears", Math.max(1, Number(e.target.value) || 1))
                   }
                   disabled={values.confidentialityTermType !== "years"}
                 />
@@ -118,6 +130,7 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 <input
                   type="radio"
                   name="confidentialityTermType"
+                  aria-label="In perpetuity"
                   checked={values.confidentialityTermType === "perpetual"}
                   onChange={() => set("confidentialityTermType", "perpetual")}
                 />
@@ -127,8 +140,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
           </Field>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Governing Law (State)">
+            <Field label="Governing Law (State)" fieldId="field-governing-law">
               <input
+                id="field-governing-law"
                 type="text"
                 className={inputClass}
                 value={values.governingLaw}
@@ -136,8 +150,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 placeholder="e.g. Delaware"
               />
             </Field>
-            <Field label="Jurisdiction">
+            <Field label="Jurisdiction" fieldId="field-jurisdiction">
               <input
+                id="field-jurisdiction"
                 type="text"
                 className={inputClass}
                 value={values.jurisdiction}
@@ -155,8 +170,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
           Party 1
         </h2>
         <div className="space-y-4">
-          <Field label="Company">
+          <Field label="Company" fieldId="field-party1-company">
             <input
+              id="field-party1-company"
               type="text"
               className={inputClass}
               value={values.party1Company}
@@ -164,16 +180,18 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
             />
           </Field>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Print Name">
+            <Field label="Print Name" fieldId="field-party1-name">
               <input
+                id="field-party1-name"
                 type="text"
                 className={inputClass}
                 value={values.party1Name}
                 onChange={(e) => set("party1Name", e.target.value)}
               />
             </Field>
-            <Field label="Title">
+            <Field label="Title" fieldId="field-party1-title">
               <input
+                id="field-party1-title"
                 type="text"
                 className={inputClass}
                 value={values.party1Title}
@@ -182,8 +200,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Notice Address">
+            <Field label="Notice Address" fieldId="field-party1-address">
               <input
+                id="field-party1-address"
                 type="text"
                 className={inputClass}
                 value={values.party1Address}
@@ -191,8 +210,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 placeholder="Email or postal address"
               />
             </Field>
-            <Field label="Date">
+            <Field label="Date" fieldId="field-party1-date">
               <input
+                id="field-party1-date"
                 type="date"
                 className={inputClass}
                 value={values.party1Date}
@@ -209,8 +229,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
           Party 2
         </h2>
         <div className="space-y-4">
-          <Field label="Company">
+          <Field label="Company" fieldId="field-party2-company">
             <input
+              id="field-party2-company"
               type="text"
               className={inputClass}
               value={values.party2Company}
@@ -218,16 +239,18 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
             />
           </Field>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Print Name">
+            <Field label="Print Name" fieldId="field-party2-name">
               <input
+                id="field-party2-name"
                 type="text"
                 className={inputClass}
                 value={values.party2Name}
                 onChange={(e) => set("party2Name", e.target.value)}
               />
             </Field>
-            <Field label="Title">
+            <Field label="Title" fieldId="field-party2-title">
               <input
+                id="field-party2-title"
                 type="text"
                 className={inputClass}
                 value={values.party2Title}
@@ -236,8 +259,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Notice Address">
+            <Field label="Notice Address" fieldId="field-party2-address">
               <input
+                id="field-party2-address"
                 type="text"
                 className={inputClass}
                 value={values.party2Address}
@@ -245,8 +269,9 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 placeholder="Email or postal address"
               />
             </Field>
-            <Field label="Date">
+            <Field label="Date" fieldId="field-party2-date">
               <input
+                id="field-party2-date"
                 type="date"
                 className={inputClass}
                 value={values.party2Date}

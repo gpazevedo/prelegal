@@ -8,6 +8,7 @@ import {
   getMndaTermText,
   getConfidentialityTermText,
   substituteStandardTerms,
+  formatDate,
 } from "@/lib/templateUtils";
 
 interface NdaPreviewProps {
@@ -15,14 +16,6 @@ interface NdaPreviewProps {
   values: NdaFormValues;
 }
 
-function formatDate(dateStr: string) {
-  if (!dateStr) return "";
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
 
 function Row({
   label,
