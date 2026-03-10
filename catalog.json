@@ -1,0 +1,62 @@
+[
+  {
+    "name": "AI Addendum",
+    "description": "Supplemental terms governing the use of AI/ML features within a SaaS product. Covers AI service usage restrictions, model training consent, IP ownership of inputs/outputs, and disclaimers about AI-generated content inaccuracies.",
+    "filename": "templates/AI-Addendum.md"
+  },
+  {
+    "name": "Business Associate Agreement (BAA)",
+    "description": "HIPAA-compliant agreement governing the handling of Protected Health Information (PHI) between a covered entity and a business associate. Covers PHI obligations, safeguards, breach notification, and individual rights.",
+    "filename": "templates/BAA.md"
+  },
+  {
+    "name": "Cloud Service Agreement (CSA)",
+    "description": "Standard SaaS subscription agreement covering cloud service access and use rights, user account responsibilities, customer content handling, ML/AI data usage, restrictions, privacy, security, fees, IP, and indemnification.",
+    "filename": "templates/CSA.md"
+  },
+  {
+    "name": "Design Partner Agreement",
+    "description": "Agreement for early-access beta partnerships where a partner gets pre-release product access in exchange for providing structured feedback to help the provider develop and improve the product. Covers feedback rights, fees, confidentiality, and IP.",
+    "filename": "templates/design-partner-agreement.md"
+  },
+  {
+    "name": "Data Processing Agreement (DPA)",
+    "description": "GDPR-focused agreement governing the processing of personal data by a provider on behalf of a customer. Covers processor/subprocessor relationships, data subject rights, security obligations, international data transfers, and audit rights.",
+    "filename": "templates/DPA.md"
+  },
+  {
+    "name": "Mutual NDA — Standard Terms",
+    "description": "The standard terms body of a mutual non-disclosure agreement. Covers the definition of confidential information, permitted use and disclosure, protection obligations, required disclosures, return/destruction of information, and term.",
+    "filename": "templates/Mutual-NDA.md"
+  },
+  {
+    "name": "Mutual NDA — Cover Page",
+    "description": "The fillable cover page component of the Mutual NDA, with labeled fields for Purpose, Effective Date, MNDA Term, and party details. References and incorporates the Standard Terms.",
+    "filename": "templates/Mutual-NDA-coverpage.md"
+  },
+  {
+    "name": "Partnership Agreement",
+    "description": "Agreement governing a commercial partnership between two companies. Covers mutual obligations, feedback rights, revenue sharing or referral arrangements, confidentiality, IP ownership, and general terms.",
+    "filename": "templates/Partnership-Agreement.md"
+  },
+  {
+    "name": "Pilot Agreement",
+    "description": "Agreement for a time-limited product evaluation (pilot/trial). Grants the customer access to the product solely for internal evaluation purposes during a defined pilot period, typically at no cost or reduced cost, with no warranties.",
+    "filename": "templates/Pilot-Agreement.md"
+  },
+  {
+    "name": "Professional Services Agreement (PSA)",
+    "description": "Agreement governing the delivery of professional/consulting services. Covers SOW-based service delivery, customer cooperation obligations, fees and invoicing, IP ownership of deliverables, confidentiality, and warranties.",
+    "filename": "templates/psa.md"
+  },
+  {
+    "name": "Service Level Agreement (SLA)",
+    "description": "Agreement defining cloud service uptime commitments and remedies. Covers target uptime calculation methodology, scheduled maintenance exclusions, downtime definitions, and service credits for SLA breaches.",
+    "filename": "templates/sla.md"
+  },
+  {
+    "name": "Software License Agreement",
+    "description": "Agreement for on-premise/installed software licensing. Grants a limited, non-exclusive, non-sublicensable license to install and use software on customer-controlled systems, covering user accounts, restrictions, fees, IP, warranties, and indemnification.",
+    "filename": "templates/Software-License-Agreement.md"
+  }
+]
