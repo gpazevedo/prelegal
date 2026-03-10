@@ -1,36 +1,14 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import NdaCreator from "@/components/NdaCreator";
 
 const STANDARD_TERMS =
   '# Standard Terms\n\n1. The <span class="coverpage_link">Purpose</span> governs this agreement.\n';
 
-// ── html2pdf.js mock ─────────────────────────────────────────────────────────
-// We need module-level control, so we define the mock at the module scope.
-// jest.mock is hoisted so the factory can't reference outer variables, but
-// we expose the inner mock via the module registry.
-
-let resolveSave: () => void;
-let rejectSave: (e: Error) => void;
-
-jest.mock("html2pdf.js", () => {
-  // Return a factory function (default export) whose .save() is controlled
-  // per-test via the module-level promise refs above.
-  const fn = jest.fn((/* element */) => ({
-    set: jest.fn().mockReturnThis(),
-    from: jest.fn().mockReturnThis(),
-    save: jest.fn(
-      () =>
-        new Promise<void>((res, rej) => {
-          // Assign to outer scope so tests can control resolution
-          resolveSave = res;
-          rejectSave = rej;
-        })
-    ),
-  }));
-  return { __esModule: true, default: fn };
-});
+// Mock window.print (jsdom does not implement it)
+const printMock = jest.fn();
+Object.defineProperty(window, "print", { value: printMock, writable: true });
 
 function renderCreator() {
   return render(<NdaCreator standardTerms={STANDARD_TERMS} />);
@@ -99,43 +77,20 @@ describe("NdaCreator — Form to Preview integration", () => {
 // ─── Download PDF button ──────────────────────────────────────────────────────
 
 describe("NdaCreator — Download PDF", () => {
-  it("shows 'Generating PDF…' while save is pending", async () => {
-    renderCreator();
-    const button = screen.getByRole("button", { name: /download pdf/i });
-
-    // Click — save won't resolve until we call resolveSave()
-    fireEvent.click(button);
-
-    await waitFor(() =>
-      expect(screen.getByText(/generating pdf/i)).toBeInTheDocument()
-    );
-
-    // Clean up: resolve the pending promise
-    await act(async () => { resolveSave(); });
+  beforeEach(() => {
+    printMock.mockClear();
   });
 
-  it("button is disabled while save is pending", async () => {
+  it("calls window.print when Download PDF is clicked", () => {
     renderCreator();
     const button = screen.getByRole("button", { name: /download pdf/i });
-
     fireEvent.click(button);
-
-    await waitFor(() => expect(button).toBeDisabled());
-
-    await act(async () => { resolveSave(); });
+    expect(printMock).toHaveBeenCalledTimes(1);
   });
 
-  it("button returns to 'Download PDF' after save resolves", async () => {
+  it("button is not disabled", () => {
     renderCreator();
     const button = screen.getByRole("button", { name: /download pdf/i });
-
-    fireEvent.click(button);
-    await waitFor(() => expect(button).toBeDisabled());
-
-    await act(async () => { resolveSave(); });
-
-    await waitFor(() =>
-      expect(screen.getByRole("button", { name: /download pdf/i })).not.toBeDisabled()
-    );
+    expect(button).not.toBeDisabled();
   });
 });

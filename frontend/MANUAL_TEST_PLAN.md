@@ -60,16 +60,17 @@ Run `npm run dev` in `frontend/` and open http://localhost:3000.
 
 ---
 
-## 5. PDF Download
+## 5. PDF Download (via browser Print dialog)
 
 | # | Step | Expected |
 |---|------|----------|
-| 5.1 | Click "Download PDF" | Button shows spinner and "Generating PDF…" text; button is disabled |
-| 5.2 | After generation completes | Button returns to "Download PDF"; PDF file downloaded |
-| 5.3 | Open the PDF | Document contains Cover Page and Standard Terms with filled values |
-| 5.4 | Check Effective Date in PDF | Matches what was shown in preview |
-| 5.5 | Check party names in PDF signature table | Match what was entered in the form |
-| 5.6 | Check Standard Terms in PDF | `coverpage_link` spans replaced with bolded user values |
+| 5.1 | Click "Download PDF" | Browser print dialog opens immediately |
+| 5.2 | In print dialog, check the preview | Shows only the document (header and form panel are hidden) |
+| 5.3 | Select "Save as PDF" destination and save | PDF file downloaded |
+| 5.4 | Open the PDF | Document contains Cover Page and Standard Terms with filled values |
+| 5.5 | Check Effective Date in PDF | Matches what was shown in preview |
+| 5.6 | Check party names in PDF signature table | Match what was entered in the form |
+| 5.7 | Check Standard Terms in PDF | `coverpage_link` spans replaced with bolded user values |
 
 ---
 

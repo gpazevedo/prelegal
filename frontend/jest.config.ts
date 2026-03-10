@@ -9,7 +9,6 @@ const config: Config = {
   },
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
-    "^html2pdf\\.js$": "<rootDir>/__mocks__/html2pdf.js.ts",
     "^react-markdown$": "<rootDir>/__mocks__/react-markdown.tsx",
     "^remark-gfm$": "<rootDir>/__mocks__/remark-gfm.ts",
     "^rehype-raw$": "<rootDir>/__mocks__/rehype-raw.ts",

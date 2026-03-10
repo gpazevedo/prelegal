@@ -25,3 +25,34 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Print / Save as PDF ─────────────────────────────────────────── */
+@media print {
+  /* Hide UI chrome */
+  header,
+  aside {
+    display: none !important;
+  }
+
+  /* Reset layout so the preview fills the page */
+  body,
+  html {
+    background: white !important;
+    height: auto !important;
+  }
+
+  main {
+    overflow: visible !important;
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  /* Remove card styling from the preview wrapper */
+  main > div {
+    max-width: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+}
