@@ -79,13 +79,13 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 <input
                   type="number"
                   min={1}
-                  aria-label="MNDA term years"
+                  aria-label="MNDA term months"
                   className="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={values.mndaTermYears}
-                  onChange={(e) => set("mndaTermYears", Math.max(1, Number(e.target.value) || 1))}
+                  value={values.mndaTermMonths}
+                  onChange={(e) => set("mndaTermMonths", Math.max(1, Number(e.target.value) || 1))}
                   disabled={values.mndaTermType !== "expires"}
                 />
-                <span className="text-sm">year(s) from Effective Date</span>
+                <span className="text-sm">month(s) from Effective Date</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -106,23 +106,23 @@ export default function NdaForm({ values, onChange }: NdaFormProps) {
                 <input
                   type="radio"
                   name="confidentialityTermType"
-                  aria-label="Confidentiality term years"
-                  checked={values.confidentialityTermType === "years"}
-                  onChange={() => set("confidentialityTermType", "years")}
+                  aria-label="Confidentiality term months"
+                  checked={values.confidentialityTermType === "months"}
+                  onChange={() => set("confidentialityTermType", "months")}
                 />
                 <input
                   type="number"
                   min={1}
-                  aria-label="Confidentiality term year count"
+                  aria-label="Confidentiality term month count"
                   className="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={values.confidentialityTermYears}
+                  value={values.confidentialityTermMonths}
                   onChange={(e) =>
-                    set("confidentialityTermYears", Math.max(1, Number(e.target.value) || 1))
+                    set("confidentialityTermMonths", Math.max(1, Number(e.target.value) || 1))
                   }
-                  disabled={values.confidentialityTermType !== "years"}
+                  disabled={values.confidentialityTermType !== "months"}
                 />
                 <span className="text-sm">
-                  year(s) from Effective Date (trade secrets protected until no
+                  month(s) from Effective Date (trade secrets protected until no
                   longer a trade secret)
                 </span>
               </label>

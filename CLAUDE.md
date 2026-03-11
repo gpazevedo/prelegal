@@ -57,9 +57,48 @@ Backend available at http://localhost:8000
 - Dark Navy: `#032147` (headings)
 - Gray Text: `#888888`
 
+## Architecture Details
+
+### Backend (`backend/app/`)
+
+- **`main.py`**: FastAPI app, static file serving (catch-all for Next.js export), mounts `/_next`
+- **`database.py`**: SQLite schema (`users`, `chat_sessions`, `chat_messages`), `get_db()` context manager (one connection per request)
+- **`ai.py`**: LiteLLM call, `FieldsUpdate`/`AiTurn` Pydantic models for structured output, system prompt
+- **`routers/nda_chat.py`**: NDA chat endpoints — hardcoded `doc_type='mutual_nda'`; `_DEFAULT_FIELDS` dict; `call_ai()` called synchronously (FastAPI runs sync routes in thread pool)
+- **`routers/auth.py`**: Fake auth (any email works), `get_current_user_id` Depends for protected routes
+- **`routers/catalog.py`**: Serves `catalog.json` and raw template Markdown; path traversal protected
+- **`schemas.py`**: All Pydantic request/response models (`ChatSessionResponse`, `ChatTurnResponse`, etc.)
+
+**DB schema** — `chat_sessions`: `id` (UUID PK), `user_id`, `doc_type`, `fields` (JSON), timestamps; `UNIQUE(user_id, doc_type)` — one session per user per doc type, designed for multi-doc expansion.
+
+**AI pattern** — `call_ai(history, current_fields)` uses `response_format=AiTurn` for structured output; `0` is the "not yet answered" sentinel for integer term fields; `None` values in `FieldsUpdate` are no-ops (append-only merge).
+
+### Frontend (`frontend/`)
+
+- **`app/dashboard/page.tsx`**: Catalog grid; hardcodes `Mutual-NDA.md` as the only active doc
+- **`app/dashboard/nda/page.tsx`**: Fetches `Mutual-NDA.md` template, passes to `NdaCreator`
+- **`components/NdaCreator.tsx`**: State owner (`NdaFormValues`); split layout: chat (left `w-96`) + preview (right); PDF = `window.print()`
+- **`components/NdaChat.tsx`**: Session lifecycle (GET/POST/DELETE), optimistic message append, `onFieldsChange` callback up
+- **`components/NdaPreview.tsx`**: Renders cover page (JSX table) + standard terms (ReactMarkdown with `remarkGfm` + `rehypeRaw`)
+- **`lib/templateUtils.ts`**: `NdaFormValues` type; `substituteStandardTerms()` replaces `<span class="coverpage_link">Key</span>` with `<strong>value</strong>`
+- **`lib/ndaChatApi.ts`**: Typed wrappers for chat session endpoints
+- **`lib/api.ts`**: Auth, catalog, template API wrappers; `getTemplate()` strips `templates/` prefix
+
+**Template substitution** — Templates embed `<span class="coverpage_link">FieldName</span>` (and `<span class="keyterms_link">FieldName</span>` in other docs) as interpolation markers. `rehypeRaw` is required in ReactMarkdown to render these raw HTML spans.
+
+**PDF export** — Pure CSS `@media print` in `globals.css`: hides `header` + `aside`, fills `main` to page. No PDF library needed.
+
+**Auth pattern** — `AuthGuard` component blocks render until `GET /api/auth/me` succeeds; uses `onUser` callback to bubble up the user object.
+
+### Tests (`backend/tests/`)
+
+- `conftest.py`: Sets `DATABASE_URL` env var before app import (critical — `database.py` reads it at module load); `autouse` fixture truncates tables after each test
+- AI mocked with `@patch("app.routers.nda_chat.call_ai")` — patch at import location, not definition
+
 ## Implementation Status
 
 ### Done (PL-3, PL-4, PL-5)
+
 - **V1 foundation**: FastAPI backend, Next.js static export, SQLite, Docker, start/stop scripts
 - **Routing**: `/login` → `/dashboard` → `/dashboard/nda`
 - **Auth**: Fake login (any email/password), session cookie via `itsdangerous`, `AuthGuard` component
@@ -70,6 +109,7 @@ Backend available at http://localhost:8000
 - **Tests**: 22 backend tests
 
 ### Not yet implemented
+
 - Real authentication (password hashing, secure cookies)
 - All other document types (11 of 12 show "Coming Soon")
 - Document persistence (saving drafts, history)

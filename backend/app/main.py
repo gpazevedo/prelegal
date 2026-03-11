@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.database import init_db
-from app.routers import auth, catalog, nda_chat
+from app.routers import auth, catalog, doc_chat, nda_chat
 
 _BASE_DIR = Path(__file__).resolve().parent.parent.parent
 _STATIC_DIR = Path(os.environ.get("STATIC_DIR", str(_BASE_DIR / "frontend" / "out")))
@@ -24,6 +24,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth.router)
 app.include_router(catalog.router)
 app.include_router(nda_chat.router)
+app.include_router(doc_chat.router)
 
 if _STATIC_DIR.exists():
     # Serve Next.js static assets (JS/CSS bundles)

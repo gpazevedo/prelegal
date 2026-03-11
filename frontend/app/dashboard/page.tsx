@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 import { getCatalog, signOut, type CatalogItem, type User } from "@/lib/api";
-
-const NDA_FILENAME = "templates/Mutual-NDA.md";
+import { getDocRoute } from "@/lib/docUtils";
 
 function DocumentCard({ item }: { item: CatalogItem }) {
   const router = useRouter();
-  const isActive = item.filename === NDA_FILENAME;
+  const route = getDocRoute(item.filename);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
@@ -22,22 +21,13 @@ function DocumentCard({ item }: { item: CatalogItem }) {
         </p>
       </div>
       <div className="mt-auto">
-        {isActive ? (
-          <button
-            onClick={() => router.push("/dashboard/nda")}
-            className="w-full py-2 px-3 rounded-md text-xs font-medium text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "var(--color-purple-secondary)" }}
-          >
-            Create
-          </button>
-        ) : (
-          <span
-            className="inline-block px-2.5 py-1 rounded-full text-xs font-medium"
-            style={{ backgroundColor: "#f3f4f6", color: "var(--color-gray-text)" }}
-          >
-            Coming Soon
-          </span>
-        )}
+        <button
+          onClick={() => router.push(route)}
+          className="w-full py-2 px-3 rounded-md text-xs font-medium text-white transition-opacity hover:opacity-90"
+          style={{ backgroundColor: "var(--color-purple-secondary)" }}
+        >
+          Create
+        </button>
       </div>
     </div>
   );

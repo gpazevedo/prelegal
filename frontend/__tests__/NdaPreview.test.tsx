@@ -57,10 +57,10 @@ describe("NdaPreview — Cover Page", () => {
   });
 
   it("renders MNDA Term expiry text", () => {
-    renderPreview({ mndaTermType: "expires", mndaTermYears: 2 });
+    renderPreview({ mndaTermType: "expires", mndaTermMonths: 2 });
     // "Expires" appears in the cover page row; use getAllByText since it may also appear in standard terms
     expect(screen.getAllByText(/expires/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText("2 years from Effective Date").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("2 months from Effective Date").length).toBeGreaterThan(0);
   });
 
   it("renders MNDA Term perpetual text", () => {
@@ -71,9 +71,9 @@ describe("NdaPreview — Cover Page", () => {
   });
 
   it("renders Term of Confidentiality years", () => {
-    renderPreview({ confidentialityTermType: "years", confidentialityTermYears: 3 });
+    renderPreview({ confidentialityTermType: "months", confidentialityTermMonths: 3 });
     // Text appears in both the cover page <strong> and in the markdown mock
-    expect(screen.getAllByText(/3 years from Effective Date/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/3 months from Effective Date/i).length).toBeGreaterThan(0);
   });
 
   it("renders Term of Confidentiality perpetual", () => {

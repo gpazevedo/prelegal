@@ -141,7 +141,7 @@ export default function NdaPreview({ standardTerms, values }: NdaPreviewProps) {
               )}
             </Row>
             <Row label="Term of Confidentiality">
-              {values.confidentialityTermType === "years" ? (
+              {values.confidentialityTermType === "months" ? (
                 <>
                   <strong>{getConfidentialityTermText(values)}</strong>, but in
                   the case of trade secrets until Confidential Information is no
