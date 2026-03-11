@@ -6,6 +6,7 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "itsdangerous>=2.2",
+    "litellm>=1.82.1",
 ]
 
 [tool.hatch.build.targets.wheel]

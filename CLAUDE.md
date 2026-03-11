@@ -8,7 +8,7 @@ The available documents are covered in the catalog.json file in the project root
 
 @catalog.json
 
-The current implementation has a working foundation with fake auth (any email/password accepted), a dashboard listing all 12 document types, and the Mutual NDA creator behind the login wall. AI chat, document persistence, and real authentication are not yet implemented.
+The current implementation has a working foundation with fake auth, a dashboard listing all 12 document types, and the Mutual NDA creator with AI chat at `/dashboard/nda`. Document persistence (saving drafts) and real authentication are not yet implemented.
 
 ## Development process
 
@@ -59,17 +59,17 @@ Backend available at http://localhost:8000
 
 ## Implementation Status
 
-### Done (PL-3, PL-4)
+### Done (PL-3, PL-4, PL-5)
 - **V1 foundation**: FastAPI backend, Next.js static export, SQLite, Docker, start/stop scripts
 - **Routing**: `/login` → `/dashboard` → `/dashboard/nda`
 - **Auth**: Fake login (any email/password), session cookie via `itsdangerous`, `AuthGuard` component
 - **Dashboard**: Lists all 12 document types from `catalog.json`; Mutual NDA is the only active one
-- **Mutual NDA creator**: Form + live preview + PDF export (print) at `/dashboard/nda`
-- **Backend API**: `POST /api/auth/signup|signin|signout`, `GET /api/auth/me`, `GET /api/catalog`, `GET /api/templates/{filename}`
-- **Tests**: 12 backend tests, 95 frontend tests
+- **Mutual NDA creator**: AI chat + live preview + PDF export (print) at `/dashboard/nda`
+- **AI chat**: LiteLLM → OpenRouter → `openai/gpt-oss-120b` (Cerebras inference), structured output (`AiTurn`/`FieldsUpdate`), server-side session storage in SQLite (`chat_sessions` + `chat_messages`)
+- **Backend API**: `POST /api/auth/signup|signin|signout`, `GET /api/auth/me`, `GET /api/catalog`, `GET /api/templates/{filename}`, `GET|DELETE /api/nda-chat/session`, `POST /api/nda-chat/message`
+- **Tests**: 22 backend tests
 
 ### Not yet implemented
 - Real authentication (password hashing, secure cookies)
-- AI chat for filling document fields
 - All other document types (11 of 12 show "Coming Soon")
 - Document persistence (saving drafts, history)

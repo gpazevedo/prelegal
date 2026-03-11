@@ -18,6 +18,25 @@ def init_db() -> None:
                 created_at TEXT    NOT NULL DEFAULT (datetime('now'))
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS chat_sessions (
+                id         TEXT    PRIMARY KEY,
+                user_id    INTEGER NOT NULL,
+                doc_type   TEXT    NOT NULL DEFAULT 'mutual_nda',
+                fields     TEXT    NOT NULL DEFAULT '{}',
+                created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS chat_messages (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT    NOT NULL,
+                role       TEXT    NOT NULL CHECK(role IN ('assistant', 'user')),
+                content    TEXT    NOT NULL,
+                created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+            )
+        """)
         conn.commit()
 
 
