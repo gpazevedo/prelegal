@@ -59,20 +59,20 @@ def get_or_create_session(user_id: int = Depends(get_current_user_id)):
         session = _get_active_session(conn, user_id)
         if not session:
             session_id = str(uuid.uuid4())
+            # INSERT OR IGNORE makes concurrent requests idempotent (UNIQUE constraint on user_id, doc_type)
             conn.execute(
-                "INSERT INTO chat_sessions (id, user_id, doc_type, fields) VALUES (?, ?, 'mutual_nda', ?)",
+                "INSERT OR IGNORE INTO chat_sessions (id, user_id, doc_type, fields) VALUES (?, ?, 'mutual_nda', ?)",
                 (session_id, user_id, json.dumps(_DEFAULT_FIELDS)),
             )
-            conn.execute(
-                "INSERT INTO chat_messages (session_id, role, content) VALUES (?, 'assistant', ?)",
-                (session_id, GREETING),
-            )
+            # Only insert greeting if we actually created the row
+            if conn.execute("SELECT changes()").fetchone()[0]:
+                conn.execute(
+                    "INSERT INTO chat_messages (session_id, role, content) VALUES (?, 'assistant', ?)",
+                    (session_id, GREETING),
+                )
             conn.commit()
-            return ChatSessionResponse(
-                session_id=session_id,
-                messages=[ChatMessage(role="assistant", content=GREETING)],
-                fields=dict(_DEFAULT_FIELDS),
-            )
+            # Re-fetch in case a concurrent request beat us to the insert
+            session = _get_active_session(conn, user_id)
 
         session_id = session["id"]
         fields = json.loads(session["fields"])

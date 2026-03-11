@@ -1,3 +1,4 @@
+import atexit
 import os
 import tempfile
 import pytest
@@ -8,6 +9,8 @@ _tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
 _tmp.close()
 os.environ["DATABASE_URL"] = _tmp.name
 os.environ["SECRET_KEY"] = "test-secret"
+
+atexit.register(lambda: os.unlink(_tmp.name) if os.path.exists(_tmp.name) else None)
 
 from app.database import init_db  # noqa: E402
 from app.main import app  # noqa: E402

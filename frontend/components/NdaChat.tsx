@@ -50,18 +50,26 @@ export default function NdaChat({ onFieldsChange }: NdaChatProps) {
       ]);
       onFieldsChange(turn.fields as Partial<NdaFormValues>);
       if (turn.is_complete) setComplete(true);
+    } catch {
+      // Roll back the optimistically-added user message
+      setMessages((prev) => prev.slice(0, -1));
+      setError("Failed to send message. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
   async function handleReset() {
-    await resetSession();
-    setComplete(false);
-    setMessages([]);
-    const session = await getOrCreateSession();
-    setMessages(session.messages);
-    onFieldsChange(session.fields as Partial<NdaFormValues>);
+    try {
+      await resetSession();
+      setComplete(false);
+      setMessages([]);
+      const session = await getOrCreateSession();
+      setMessages(session.messages);
+      onFieldsChange(session.fields as Partial<NdaFormValues>);
+    } catch {
+      setError("Failed to reset session. Please refresh.");
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {

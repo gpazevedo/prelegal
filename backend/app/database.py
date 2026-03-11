@@ -25,7 +25,8 @@ def init_db() -> None:
                 doc_type   TEXT    NOT NULL DEFAULT 'mutual_nda',
                 fields     TEXT    NOT NULL DEFAULT '{}',
                 created_at TEXT    NOT NULL DEFAULT (datetime('now')),
-                updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+                updated_at TEXT    NOT NULL DEFAULT (datetime('now')),
+                UNIQUE(user_id, doc_type)
             )
         """)
         conn.execute("""

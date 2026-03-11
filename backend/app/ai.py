@@ -64,6 +64,7 @@ class AiTurn(BaseModel):
 
 def call_ai(history: list[dict], current_fields: dict) -> AiTurn:
     """Call the AI with conversation history and return structured response."""
+    # 0 is the "not yet answered" sentinel for mndaTermYears / confidentialityTermYears
     filled = {k: v for k, v in current_fields.items() if v not in (None, "", 0)}
     system_content = _SYSTEM_PROMPT.format(fields_json=json.dumps(filled, indent=2))
 
