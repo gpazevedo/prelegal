@@ -1,13 +1,12 @@
-import { readFile } from "fs/promises";
-import path from "path";
-import NdaCreator from "@/components/NdaCreator";
+"use client";
 
-export default async function Home() {
-  const templatesDir = path.join(process.cwd(), "..", "templates");
-  const standardTerms = await readFile(
-    path.join(templatesDir, "Mutual-NDA.md"),
-    "utf-8"
-  );
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-  return <NdaCreator standardTerms={standardTerms} />;
+export default function Home() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/login");
+  }, [router]);
+  return null;
 }

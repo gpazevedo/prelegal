@@ -15,6 +15,7 @@ wheels/
 .installed.cfg
 lib/
 lib64/
+!frontend/lib/
 .Python
 .venv/
 venv/
