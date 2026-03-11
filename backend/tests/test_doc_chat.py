@@ -4,6 +4,8 @@ AI calls are mocked so tests don't require a real API key.
 """
 from unittest.mock import patch
 
+import pytest
+
 from app.ai import GenericAiTurn, GenericFieldsUpdate
 from app.doc_config import get_config
 
@@ -140,3 +142,68 @@ def test_reset_unknown_slug_returns_404(client):
     _auth_client(client)
     res = client.delete("/api/doc-chat/nonexistent/session")
     assert res.status_code == 404
+
+
+# ─── All 10 config slugs ──────────────────────────────────────────────────────
+
+@pytest.mark.parametrize("slug,expected_template", [
+    ("ai-addendum", "AI-Addendum.md"),
+    ("baa", "BAA.md"),
+    ("csa", "CSA.md"),
+    ("design-partner-agreement", "design-partner-agreement.md"),
+    ("dpa", "DPA.md"),
+    ("partnership-agreement", "Partnership-Agreement.md"),
+    ("pilot-agreement", "Pilot-Agreement.md"),
+    ("psa", "psa.md"),
+    ("sla", "sla.md"),
+    ("software-license-agreement", "Software-License-Agreement.md"),
+])
+def test_all_configs_have_correct_template(slug, expected_template):
+    config = get_config(slug)
+    assert config is not None, f"get_config({slug!r}) returned None"
+    assert config.template_file == expected_template
+    assert config.slug == slug
+    assert len(config.greeting) > 0
+    assert len(config.fields_description) > 0
+
+
+def test_get_default_fields_returns_18_empty_strings():
+    from app.doc_config import get_default_fields
+    fields = get_default_fields()
+    assert len(fields) == 18
+    for val in fields.values():
+        assert val == ""
+
+
+# ─── Field merge: None vs empty string ───────────────────────────────────────
+
+@patch("app.routers.doc_chat.call_generic_ai")
+def test_none_field_preserves_existing_value(mock_ai, client):
+    """AI returning None for a field should not overwrite an already-set value."""
+    _auth_client(client)
+    client.get(f"/api/doc-chat/{SLUG}/session")
+
+    # First message sets providerCompany
+    mock_ai.return_value = _make_ai_turn(providerCompany="Acme Corp")
+    client.post(f"/api/doc-chat/{SLUG}/message", json={"content": "Acme Corp"})
+
+    # Second message returns None for providerCompany (not mentioned)
+    mock_ai.return_value = _make_ai_turn(next_question="What is the customer?")
+    res = client.post(f"/api/doc-chat/{SLUG}/message", json={"content": "next"})
+    assert res.json()["fields"]["providerCompany"] == "Acme Corp"
+
+
+@patch("app.routers.doc_chat.call_generic_ai")
+def test_empty_string_field_overwrites_existing_value(mock_ai, client):
+    """AI explicitly returning '' for a field should overwrite the existing value."""
+    _auth_client(client)
+    client.get(f"/api/doc-chat/{SLUG}/session")
+
+    # First message sets providerCompany
+    mock_ai.return_value = _make_ai_turn(providerCompany="Acme Corp")
+    client.post(f"/api/doc-chat/{SLUG}/message", json={"content": "Acme Corp"})
+
+    # Second message explicitly returns empty string (correction)
+    mock_ai.return_value = _make_ai_turn(providerCompany="")
+    res = client.post(f"/api/doc-chat/{SLUG}/message", json={"content": "actually empty"})
+    assert res.json()["fields"]["providerCompany"] == ""
