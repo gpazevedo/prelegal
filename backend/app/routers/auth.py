@@ -69,6 +69,16 @@ def signout(response: Response):
     return {"ok": True}
 
 
+def get_current_user_id(session: str | None = Cookie(default=None)) -> int:
+    """FastAPI dependency: return current user_id or raise 401."""
+    if not session:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    user_id = _load_session(session)
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid session")
+    return user_id
+
+
 @router.get("/me", response_model=UserResponse)
 def me(session: str | None = Cookie(default=None)):
     """Return the current user from the session cookie."""
