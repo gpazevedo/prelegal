@@ -13,7 +13,7 @@ def test_signup_sets_session_cookie(client):
 
 def test_signup_rejects_duplicate_email(client):
     client.post("/api/auth/signup", json={"email": "dup@test.com", "password": "secret123"})
-    res = client.post("/api/auth/signup", json={"email": "dup@test.com", "password": "other"})
+    res = client.post("/api/auth/signup", json={"email": "dup@test.com", "password": "otherpass"})
     assert res.status_code == 409
 
 
@@ -25,18 +25,18 @@ def test_signin_returns_user_with_correct_password(client):
 
 
 def test_signin_rejects_wrong_password(client):
-    client.post("/api/auth/signup", json={"email": "d@test.com", "password": "correct"})
-    res = client.post("/api/auth/signin", json={"email": "d@test.com", "password": "wrong"})
+    client.post("/api/auth/signup", json={"email": "d@test.com", "password": "correctpass"})
+    res = client.post("/api/auth/signin", json={"email": "d@test.com", "password": "wrongpass"})
     assert res.status_code == 401
 
 
 def test_signin_rejects_unknown_email(client):
-    res = client.post("/api/auth/signin", json={"email": "nobody@test.com", "password": "x"})
+    res = client.post("/api/auth/signin", json={"email": "nobody@test.com", "password": "somepassword"})
     assert res.status_code == 401
 
 
 def test_me_returns_user_when_authenticated(client):
-    client.post("/api/auth/signup", json={"email": "e@test.com", "password": "secret"})
+    client.post("/api/auth/signup", json={"email": "e@test.com", "password": "secret123"})
     res = client.get("/api/auth/me")
     assert res.status_code == 200
     assert res.json()["email"] == "e@test.com"
@@ -48,7 +48,7 @@ def test_me_returns_401_when_not_authenticated(client):
 
 
 def test_signout_clears_session(client):
-    client.post("/api/auth/signup", json={"email": "f@test.com", "password": "secret"})
+    client.post("/api/auth/signup", json={"email": "f@test.com", "password": "secret123"})
     client.post("/api/auth/signout")
     res = client.get("/api/auth/me")
     assert res.status_code == 401

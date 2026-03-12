@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import os
 
-from fastapi import APIRouter, Cookie, HTTPException, Response
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
 from itsdangerous import BadSignature, URLSafeSerializer
 
 from app.database import get_db
@@ -107,13 +107,8 @@ def get_current_user_id(session: str | None = Cookie(default=None)) -> int:
 
 
 @router.get("/me", response_model=UserResponse)
-def me(session: str | None = Cookie(default=None)):
+def me(user_id: int = Depends(get_current_user_id)):
     """Return the current user from the session cookie."""
-    if not session:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    user_id = _load_session(session)
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid session")
     with get_db() as conn:
         user = conn.execute(
             "SELECT id, email FROM users WHERE id = ?", (user_id,)

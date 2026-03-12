@@ -21,7 +21,7 @@ def _make_ai_turn(next_question="What is the customer company name?", is_complet
 
 
 def _auth_client(client):
-    client.post("/api/auth/signup", json={"email": "doc@test.com", "password": "x"})
+    client.post("/api/auth/signup", json={"email": "doc@test.com", "password": "secret123"})
     return client
 
 

@@ -39,6 +39,10 @@ def init_db() -> None:
                 created_at TEXT    NOT NULL DEFAULT (datetime('now'))
             )
         """)
+        # Migrate existing databases that predate the password_hash column
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(users)")}
+        if "password_hash" not in columns:
+            conn.execute("ALTER TABLE users ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''")
         conn.commit()
 
 

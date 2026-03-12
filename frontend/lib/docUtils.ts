@@ -126,3 +126,8 @@ export function getDocRoute(filename: string): string {
   const basename = filename.replace(/^templates\//, "").replace(/\.md$/, "");
   return `/dashboard/doc/${basename.toLowerCase()}`;
 }
+
+// Derive route from a session doc_type (slug or "mutual_nda")
+export function docTypeToRoute(docType: string): string {
+  return docType === "mutual_nda" ? "/dashboard/nda" : `/dashboard/doc/${docType}`;
+}

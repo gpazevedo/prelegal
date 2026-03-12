@@ -1,9 +1,9 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-from app.ai import AiTurn, FieldsUpdate, GenericAiTurn, GenericFieldsUpdate
+from app.ai import GenericAiTurn, GenericFieldsUpdate
 
 
-def _signup(client, email="user@test.com", password="secret"):
+def _signup(client, email="user@test.com", password="secret123"):
     client.post("/api/auth/signup", json={"email": email, "password": password})
 
 
@@ -91,16 +91,16 @@ def test_get_session_by_id_requires_auth(client):
     assert res.status_code == 401
 
 
-def test_sessions_isolated_per_user(client):
+def test_sessions_isolated_per_user():
     """User A cannot see User B's sessions."""
     from fastapi.testclient import TestClient
     from app.main import app
 
-    client_a = TestClient(app)
-    client_b = TestClient(app)
+    client_a = TestClient(app, raise_server_exceptions=True)
+    client_b = TestClient(app, raise_server_exceptions=True)
 
-    client_a.post("/api/auth/signup", json={"email": "a@test.com", "password": "pass"})
-    client_b.post("/api/auth/signup", json={"email": "b@test.com", "password": "pass"})
+    client_a.post("/api/auth/signup", json={"email": "a@test.com", "password": "password123"})
+    client_b.post("/api/auth/signup", json={"email": "b@test.com", "password": "password123"})
 
     client_a.get("/api/nda-chat/session")
     sessions_a = client_a.get("/api/sessions").json()

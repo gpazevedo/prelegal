@@ -6,7 +6,7 @@ import AuthGuard from "@/components/AuthGuard";
 import DocPreview from "@/components/DocPreview";
 import NdaPreview from "@/components/NdaPreview";
 import { getSessionById, getTemplate, type SessionSummary } from "@/lib/api";
-import { DocFields, DOC_NAMES, SLUG_TO_TEMPLATE, getDefaultDocFields } from "@/lib/docUtils";
+import { DocFields, DOC_NAMES, SLUG_TO_TEMPLATE, docTypeToRoute, getDefaultDocFields } from "@/lib/docUtils";
 import { NdaFormValues, getDefaultFormValues } from "@/lib/templateUtils";
 
 function PreviewContent() {
@@ -60,7 +60,7 @@ function PreviewContent() {
   }
 
   const isNda = session.doc_type === "mutual_nda";
-  const editRoute = isNda ? "/dashboard/nda" : `/dashboard/doc/${session.doc_type}`;
+  const editRoute = docTypeToRoute(session.doc_type);
   const docName = isNda ? "Mutual NDA" : (DOC_NAMES[session.doc_type] ?? session.doc_name);
 
   return (

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 import { ApiError, getCatalog, getSessions, signOut, type CatalogItem, type SessionSummary, type User } from "@/lib/api";
-import { getDocRoute } from "@/lib/docUtils";
+import { getDocRoute, docTypeToRoute } from "@/lib/docUtils";
 
 function DocumentCard({ item }: { item: CatalogItem }) {
   const router = useRouter();
@@ -82,12 +82,7 @@ function MyDocumentCard({ session }: { session: SessionSummary }) {
           View
         </button>
         <button
-          onClick={() => {
-            const route = session.doc_type === "mutual_nda"
-              ? "/dashboard/nda"
-              : `/dashboard/doc/${session.doc_type}`;
-            router.push(route);
-          }}
+          onClick={() => router.push(docTypeToRoute(session.doc_type))}
           className="flex-1 py-1.5 px-3 rounded-md text-xs font-medium text-white transition-opacity hover:opacity-90"
           style={{ backgroundColor: "var(--color-blue-primary)" }}
         >
