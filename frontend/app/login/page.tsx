@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, signUp } from "@/lib/api";
+import { signIn, signUp, ApiError } from "@/lib/api";
 
 type Mode = "signin" | "signup";
 
@@ -25,8 +25,18 @@ export default function LoginPage() {
         await signUp(email, password);
       }
       router.push("/dashboard");
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (mode === "signup" && err.status === 409) {
+          setError("An account with this email already exists. Please sign in.");
+        } else if (mode === "signin" && err.status === 401) {
+          setError("Invalid email or password. Please try again.");
+        } else {
+          setError("Something went wrong. Please try again.");
+        }
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -37,6 +47,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4"
+            style={{ backgroundColor: "var(--color-dark-navy)" }}>
+            <span className="text-white font-bold text-lg">P</span>
+          </div>
           <h1
             className="text-3xl font-bold tracking-tight"
             style={{ color: "var(--color-dark-navy)" }}
@@ -116,15 +130,23 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 required
+                minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] focus:border-transparent"
                 placeholder="••••••••"
               />
+              {mode === "signup" && (
+                <p className="mt-1 text-xs" style={{ color: "var(--color-gray-text)" }}>
+                  Minimum 6 characters
+                </p>
+              )}
             </div>
 
             {error && (
-              <p className="text-sm text-red-600">{error}</p>
+              <div className="rounded-md bg-red-50 border border-red-200 px-3 py-2">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
             )}
 
             <button
@@ -141,6 +163,10 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
+
+        <p className="mt-6 text-center text-xs" style={{ color: "var(--color-gray-text)" }}>
+          Documents generated are drafts only and subject to legal review.
+        </p>
       </div>
     </div>
   );

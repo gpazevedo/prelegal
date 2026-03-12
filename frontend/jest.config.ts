@@ -12,6 +12,7 @@ const config: Config = {
     "^react-markdown$": "<rootDir>/__mocks__/react-markdown.tsx",
     "^remark-gfm$": "<rootDir>/__mocks__/remark-gfm.ts",
     "^rehype-raw$": "<rootDir>/__mocks__/rehype-raw.ts",
+    "^next/navigation$": "<rootDir>/__mocks__/next-navigation.ts",
   },
   testMatch: ["**/__tests__/**/*.test.(ts|tsx)"],
   collectCoverageFrom: [

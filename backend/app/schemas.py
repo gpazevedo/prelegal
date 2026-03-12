@@ -40,3 +40,11 @@ class ChatTurnResponse(BaseModel):
     assistant_message: str
     fields: dict
     is_complete: bool
+
+
+class SessionSummary(BaseModel):
+    session_id: str
+    doc_type: str
+    doc_name: str
+    updated_at: str
+    fields: dict
