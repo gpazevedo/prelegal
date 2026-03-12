@@ -28,12 +28,14 @@ def _load_session(token: str) -> int | None:
 
 
 def _set_session_cookie(response: Response, user_id: int) -> None:
+    secure = os.environ.get("SECURE_COOKIES", "false").lower() == "true"
     response.set_cookie(
         key="session",
         value=_make_session(user_id),
         httponly=True,
         samesite="lax",
         path="/",
+        secure=secure,
     )
 
 
