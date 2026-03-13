@@ -18,7 +18,7 @@ def _make_ai_turn(next_question="What is Party 1's company name?", is_complete=F
 
 def _auth_client(client):
     """Sign up and return the client with an active session."""
-    client.post("/api/auth/signup", json={"email": "chat@test.com", "password": "x"})
+    client.post("/api/auth/signup", json={"email": "chat@test.com", "password": "secret123"})
     return client
 
 

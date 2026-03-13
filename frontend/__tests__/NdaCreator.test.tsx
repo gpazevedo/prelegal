@@ -1,6 +1,5 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import NdaCreator from "@/components/NdaCreator";
 
 const STANDARD_TERMS =
@@ -10,9 +9,33 @@ const STANDARD_TERMS =
 const printMock = jest.fn();
 Object.defineProperty(window, "print", { value: printMock, writable: true });
 
+// Mock ndaChatApi (NdaChat makes API calls on mount)
+jest.mock("@/lib/ndaChatApi");
+import { getOrCreateSession } from "@/lib/ndaChatApi";
+const mockGetSession = getOrCreateSession as jest.MockedFunction<typeof getOrCreateSession>;
+
+const DEFAULT_SESSION = {
+  session_id: "sess-1",
+  messages: [{ role: "assistant" as const, content: "Hi! What is the purpose of this agreement?" }],
+  fields: {},
+};
+
+// Mock router (NdaCreator uses useRouter for back navigation)
+const mockPush = jest.fn();
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mockPush, replace: jest.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => "/",
+}));
+
 function renderCreator() {
   return render(<NdaCreator standardTerms={STANDARD_TERMS} />);
 }
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockGetSession.mockResolvedValue(DEFAULT_SESSION);
+});
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
@@ -22,59 +45,39 @@ describe("NdaCreator — Layout", () => {
     expect(screen.getByText("Mutual NDA Creator")).toBeInTheDocument();
   });
 
-  it("renders the subtitle", () => {
-    renderCreator();
-    expect(screen.getByText(/prelegal/i)).toBeInTheDocument();
-  });
-
   it("renders the Download PDF button", () => {
     renderCreator();
     expect(screen.getByRole("button", { name: /download pdf/i })).toBeInTheDocument();
   });
 
-  it("renders the form", () => {
+  it("renders the back to dashboard button", () => {
     renderCreator();
-    expect(screen.getByText("Agreement Details")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /back to dashboard/i })).toBeInTheDocument();
   });
 
   it("renders the preview panel with nda-document", () => {
     renderCreator();
     expect(document.getElementById("nda-document")).toBeInTheDocument();
   });
-});
 
-// ─── Form → Preview integration ──────────────────────────────────────────────
-
-describe("NdaCreator — Form to Preview integration", () => {
-  it("preview updates when Purpose is changed", async () => {
+  it("renders the draft disclaimer", () => {
     renderCreator();
-    const textarea = screen.getByLabelText(/purpose/i);
-    await userEvent.clear(textarea);
-    await userEvent.type(textarea, "Testing live update");
-    const markdown = screen.getByTestId("react-markdown");
-    expect(markdown.textContent).toContain("Testing live update");
-  });
-
-  it("preview updates when Governing Law is changed", async () => {
-    renderCreator();
-    const input = screen.getByLabelText(/governing law/i);
-    await userEvent.type(input, "Oregon");
-    expect(screen.getByDisplayValue(/Oregon/)).toBeInTheDocument();
-  });
-
-  it("party company names appear as signature table headers after input", async () => {
-    renderCreator();
-    const p1 = document.getElementById("field-party1-company")!;
-    const p2 = document.getElementById("field-party2-company")!;
-    await userEvent.type(p1, "StartupA");
-    await userEvent.type(p2, "StartupB");
-    const headers = screen.getAllByRole("columnheader");
-    expect(headers.some((h) => h.textContent?.includes("StartupA"))).toBe(true);
-    expect(headers.some((h) => h.textContent?.includes("StartupB"))).toBe(true);
+    expect(screen.getByText(/draft document/i)).toBeInTheDocument();
   });
 });
 
-// ─── Download PDF button ──────────────────────────────────────────────────────
+// ─── Navigation ───────────────────────────────────────────────────────────────
+
+describe("NdaCreator — Navigation", () => {
+  it("back button navigates to dashboard", () => {
+    renderCreator();
+    const backBtn = screen.getByRole("button", { name: /back to dashboard/i });
+    fireEvent.click(backBtn);
+    expect(mockPush).toHaveBeenCalledWith("/dashboard");
+  });
+});
+
+// ─── Download PDF ─────────────────────────────────────────────────────────────
 
 describe("NdaCreator — Download PDF", () => {
   beforeEach(() => {
@@ -83,14 +86,12 @@ describe("NdaCreator — Download PDF", () => {
 
   it("calls window.print when Download PDF is clicked", () => {
     renderCreator();
-    const button = screen.getByRole("button", { name: /download pdf/i });
-    fireEvent.click(button);
+    fireEvent.click(screen.getByRole("button", { name: /download pdf/i }));
     expect(printMock).toHaveBeenCalledTimes(1);
   });
 
-  it("button is not disabled", () => {
+  it("Download PDF button is not disabled", () => {
     renderCreator();
-    const button = screen.getByRole("button", { name: /download pdf/i });
-    expect(button).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: /download pdf/i })).not.toBeDisabled();
   });
 });

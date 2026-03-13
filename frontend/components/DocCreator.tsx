@@ -2,20 +2,22 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import NdaChat from "./NdaChat";
-import NdaPreview from "./NdaPreview";
-import { NdaFormValues, getDefaultFormValues } from "@/lib/templateUtils";
+import DocChat from "./DocChat";
+import DocPreview from "./DocPreview";
+import { DocFields, getDefaultDocFields } from "@/lib/docUtils";
 
-interface NdaCreatorProps {
-  standardTerms: string;
+interface DocCreatorProps {
+  docSlug: string;
+  docName: string;
+  template: string;
 }
 
-export default function NdaCreator({ standardTerms }: NdaCreatorProps) {
+export default function DocCreator({ docSlug, docName, template }: DocCreatorProps) {
   const router = useRouter();
-  const [values, setValues] = useState<NdaFormValues>(getDefaultFormValues);
+  const [fields, setFields] = useState<DocFields>(getDefaultDocFields);
 
-  const handleFieldsChange = useCallback((fields: Partial<NdaFormValues>) => {
-    setValues((prev) => ({ ...prev, ...fields }));
+  const handleFieldsChange = useCallback((update: Partial<DocFields>) => {
+    setFields((prev) => ({ ...prev, ...update }));
   }, []);
 
   return (
@@ -37,7 +39,7 @@ export default function NdaCreator({ standardTerms }: NdaCreatorProps) {
           <div className="h-4 w-px bg-gray-200" />
           <div>
             <h1 className="text-lg font-semibold" style={{ color: "var(--color-dark-navy)" }}>
-              Mutual NDA Creator
+              {docName}
             </h1>
           </div>
         </div>
@@ -55,12 +57,10 @@ export default function NdaCreator({ standardTerms }: NdaCreatorProps) {
 
       {/* Body: Chat + Preview */}
       <div className="flex flex-1 min-h-0">
-        {/* Chat Panel */}
         <aside className="w-96 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
-          <NdaChat onFieldsChange={handleFieldsChange} />
+          <DocChat docSlug={docSlug} docName={docName} onFieldsChange={handleFieldsChange} />
         </aside>
 
-        {/* Preview Panel */}
         <main className="flex-1 overflow-y-auto bg-gray-100 p-8">
           <div className="max-w-3xl mx-auto">
             {/* Disclaimer */}
@@ -73,7 +73,7 @@ export default function NdaCreator({ standardTerms }: NdaCreatorProps) {
               </p>
             </div>
             <div className="bg-white shadow-sm rounded-lg p-10">
-              <NdaPreview standardTerms={standardTerms} values={values} />
+              <DocPreview docName={docName} template={template} fields={fields} />
             </div>
           </div>
         </main>

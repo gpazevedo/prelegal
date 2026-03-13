@@ -1,5 +1,5 @@
 def test_signup_creates_user(client):
-    res = client.post("/api/auth/signup", json={"email": "a@test.com", "password": "any"})
+    res = client.post("/api/auth/signup", json={"email": "a@test.com", "password": "secret123"})
     assert res.status_code == 200
     data = res.json()
     assert data["email"] == "a@test.com"
@@ -7,28 +7,39 @@ def test_signup_creates_user(client):
 
 
 def test_signup_sets_session_cookie(client):
-    res = client.post("/api/auth/signup", json={"email": "b@test.com", "password": "x"})
+    res = client.post("/api/auth/signup", json={"email": "b@test.com", "password": "secret123"})
     assert "session" in res.cookies
 
 
-def test_signin_creates_user_if_not_exists(client):
-    res = client.post("/api/auth/signin", json={"email": "new@test.com", "password": "x"})
-    assert res.status_code == 200
-    assert res.json()["email"] == "new@test.com"
+def test_signup_rejects_duplicate_email(client):
+    client.post("/api/auth/signup", json={"email": "dup@test.com", "password": "secret123"})
+    res = client.post("/api/auth/signup", json={"email": "dup@test.com", "password": "otherpass"})
+    assert res.status_code == 409
 
 
-def test_signin_returns_existing_user(client):
-    client.post("/api/auth/signup", json={"email": "c@test.com", "password": "x"})
-    res = client.post("/api/auth/signin", json={"email": "c@test.com", "password": "different"})
+def test_signin_returns_user_with_correct_password(client):
+    client.post("/api/auth/signup", json={"email": "c@test.com", "password": "mypassword"})
+    res = client.post("/api/auth/signin", json={"email": "c@test.com", "password": "mypassword"})
     assert res.status_code == 200
     assert res.json()["email"] == "c@test.com"
 
 
+def test_signin_rejects_wrong_password(client):
+    client.post("/api/auth/signup", json={"email": "d@test.com", "password": "correctpass"})
+    res = client.post("/api/auth/signin", json={"email": "d@test.com", "password": "wrongpass"})
+    assert res.status_code == 401
+
+
+def test_signin_rejects_unknown_email(client):
+    res = client.post("/api/auth/signin", json={"email": "nobody@test.com", "password": "somepassword"})
+    assert res.status_code == 401
+
+
 def test_me_returns_user_when_authenticated(client):
-    client.post("/api/auth/signup", json={"email": "d@test.com", "password": "x"})
+    client.post("/api/auth/signup", json={"email": "e@test.com", "password": "secret123"})
     res = client.get("/api/auth/me")
     assert res.status_code == 200
-    assert res.json()["email"] == "d@test.com"
+    assert res.json()["email"] == "e@test.com"
 
 
 def test_me_returns_401_when_not_authenticated(client):
@@ -37,7 +48,7 @@ def test_me_returns_401_when_not_authenticated(client):
 
 
 def test_signout_clears_session(client):
-    client.post("/api/auth/signup", json={"email": "e@test.com", "password": "x"})
+    client.post("/api/auth/signup", json={"email": "f@test.com", "password": "secret123"})
     client.post("/api/auth/signout")
     res = client.get("/api/auth/me")
     assert res.status_code == 401

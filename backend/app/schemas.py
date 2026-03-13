@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AuthRequest(BaseModel):
     email: str
-    password: str
+    password: str = Field(min_length=6)
 
 
 class UserResponse(BaseModel):
@@ -40,3 +40,11 @@ class ChatTurnResponse(BaseModel):
     assistant_message: str
     fields: dict
     is_complete: bool
+
+
+class SessionSummary(BaseModel):
+    session_id: str
+    doc_type: str
+    doc_name: str
+    updated_at: str
+    fields: dict

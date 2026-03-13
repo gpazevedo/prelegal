@@ -41,7 +41,7 @@ describe("NdaForm rendering", () => {
   it("renders Term of Confidentiality radio buttons", () => {
     renderForm();
     expect(screen.getByRole("radio", { name: /in perpetuity/i })).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: /confidentiality term years/i })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /confidentiality term months/i })).toBeInTheDocument();
   });
 
   it("renders Governing Law input", () => {
@@ -151,19 +151,19 @@ describe("NdaForm interactions", () => {
     expect(lastCall.confidentialityTermType).toBe("perpetual");
   });
 
-  it("MNDA years input is disabled when type is perpetual", () => {
+  it("MNDA months input is disabled when type is perpetual", () => {
     renderForm({ mndaTermType: "perpetual" });
-    expect(screen.getByRole("spinbutton", { name: /mnda term years/i })).toBeDisabled();
+    expect(screen.getByRole("spinbutton", { name: /mnda term months/i })).toBeDisabled();
   });
 
-  it("Confidentiality years input is disabled when type is perpetual", () => {
+  it("Confidentiality months input is disabled when type is perpetual", () => {
     renderForm({ confidentialityTermType: "perpetual" });
-    expect(screen.getByRole("spinbutton", { name: /confidentiality term year count/i })).toBeDisabled();
+    expect(screen.getByRole("spinbutton", { name: /confidentiality term month count/i })).toBeDisabled();
   });
 
-  it("MNDA years input is enabled when type is expires", () => {
+  it("MNDA months input is enabled when type is expires", () => {
     renderForm({ mndaTermType: "expires" });
-    expect(screen.getByRole("spinbutton", { name: /mnda term years/i })).not.toBeDisabled();
+    expect(screen.getByRole("spinbutton", { name: /mnda term months/i })).not.toBeDisabled();
   });
 
   it("calls onChange with updated party1Company", async () => {

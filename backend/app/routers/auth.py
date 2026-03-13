@@ -1,6 +1,8 @@
+import hashlib
+import hmac
 import os
 
-from fastapi import APIRouter, Cookie, HTTPException, Response
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
 from itsdangerous import BadSignature, URLSafeSerializer
 
 from app.database import get_db
@@ -35,31 +37,56 @@ def _set_session_cookie(response: Response, user_id: int) -> None:
     )
 
 
-def _upsert_user(email: str) -> UserResponse:
-    """Insert user if not exists and return them."""
-    with get_db() as conn:
-        conn.execute("INSERT OR IGNORE INTO users (email) VALUES (?)", (email,))
-        conn.commit()
-        user = conn.execute(
-            "SELECT id, email FROM users WHERE email = ?", (email,)
-        ).fetchone()
-    return UserResponse(id=user["id"], email=user["email"])
+def _hash_password(password: str) -> str:
+    salt = os.urandom(16)
+    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 260000)
+    return salt.hex() + ":" + dk.hex()
+
+
+def _verify_password(password: str, stored_hash: str) -> bool:
+    try:
+        salt_hex, dk_hex = stored_hash.split(":")
+        salt = bytes.fromhex(salt_hex)
+        dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 260000)
+        return hmac.compare_digest(dk.hex(), dk_hex)
+    except Exception:
+        return False
 
 
 @router.post("/signup", response_model=UserResponse)
 def signup(request: AuthRequest, response: Response):
-    """Create account (any email/password accepted) and set session cookie."""
-    user = _upsert_user(request.email)
-    _set_session_cookie(response, user.id)
-    return user
+    """Create a new account. Returns 409 if email already registered."""
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM users WHERE email = ?", (request.email,)
+        ).fetchone()
+        if existing:
+            raise HTTPException(status_code=409, detail="Email already registered")
+        password_hash = _hash_password(request.password)
+        conn.execute(
+            "INSERT INTO users (email, password_hash) VALUES (?, ?)",
+            (request.email, password_hash),
+        )
+        conn.commit()
+        user = conn.execute(
+            "SELECT id, email FROM users WHERE email = ?", (request.email,)
+        ).fetchone()
+    _set_session_cookie(response, user["id"])
+    return UserResponse(id=user["id"], email=user["email"])
 
 
 @router.post("/signin", response_model=UserResponse)
 def signin(request: AuthRequest, response: Response):
-    """Sign in (any email/password accepted, creates user if needed) and set session cookie."""
-    user = _upsert_user(request.email)
-    _set_session_cookie(response, user.id)
-    return user
+    """Sign in with email and password. Returns 401 if credentials are invalid."""
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT id, email, password_hash FROM users WHERE email = ?",
+            (request.email,),
+        ).fetchone()
+    if not user or not _verify_password(request.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    _set_session_cookie(response, user["id"])
+    return UserResponse(id=user["id"], email=user["email"])
 
 
 @router.post("/signout")
@@ -80,13 +107,8 @@ def get_current_user_id(session: str | None = Cookie(default=None)) -> int:
 
 
 @router.get("/me", response_model=UserResponse)
-def me(session: str | None = Cookie(default=None)):
+def me(user_id: int = Depends(get_current_user_id)):
     """Return the current user from the session cookie."""
-    if not session:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    user_id = _load_session(session)
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid session")
     with get_db() as conn:
         user = conn.execute(
             "SELECT id, email FROM users WHERE id = ?", (user_id,)

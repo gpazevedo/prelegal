@@ -24,14 +24,14 @@ describe("getDefaultFormValues()", () => {
     expect(getDefaultFormValues().effectiveDate).toBe(today);
   });
 
-  it("defaults to expires mndaTermType with 1 year", () => {
+  it("defaults to expires mndaTermType with 12 months", () => {
     expect(getDefaultFormValues().mndaTermType).toBe("expires");
-    expect(getDefaultFormValues().mndaTermYears).toBe(1);
+    expect(getDefaultFormValues().mndaTermMonths).toBe(12);
   });
 
-  it("defaults to years confidentialityTermType with 1 year", () => {
-    expect(getDefaultFormValues().confidentialityTermType).toBe("years");
-    expect(getDefaultFormValues().confidentialityTermYears).toBe(1);
+  it("defaults to months confidentialityTermType with 12 months", () => {
+    expect(getDefaultFormValues().confidentialityTermType).toBe("months");
+    expect(getDefaultFormValues().confidentialityTermMonths).toBe(12);
   });
 
   it("all party fields default to empty strings", () => {
@@ -48,14 +48,14 @@ describe("getDefaultFormValues()", () => {
 // ─── getMndaTermText ─────────────────────────────────────────────────────────
 
 describe("getMndaTermText", () => {
-  it("returns singular '1 year' for mndaTermYears=1", () => {
-    const result = getMndaTermText(makeValues({ mndaTermType: "expires", mndaTermYears: 1 }));
-    expect(result).toBe("1 year from Effective Date");
+  it("returns singular '1 month' for mndaTermMonths=1", () => {
+    const result = getMndaTermText(makeValues({ mndaTermType: "expires", mndaTermMonths: 1 }));
+    expect(result).toBe("1 month from Effective Date");
   });
 
-  it("returns plural '2 years' for mndaTermYears=2", () => {
-    const result = getMndaTermText(makeValues({ mndaTermType: "expires", mndaTermYears: 2 }));
-    expect(result).toBe("2 years from Effective Date");
+  it("returns plural '2 months' for mndaTermMonths=2", () => {
+    const result = getMndaTermText(makeValues({ mndaTermType: "expires", mndaTermMonths: 2 }));
+    expect(result).toBe("2 months from Effective Date");
   });
 
   it("returns perpetual text when mndaTermType is perpetual", () => {
@@ -63,32 +63,32 @@ describe("getMndaTermText", () => {
     expect(result).toContain("terminated");
   });
 
-  it("ignores mndaTermYears when type is perpetual", () => {
-    const result = getMndaTermText(makeValues({ mndaTermType: "perpetual", mndaTermYears: 5 }));
+  it("ignores mndaTermMonths when type is perpetual", () => {
+    const result = getMndaTermText(makeValues({ mndaTermType: "perpetual", mndaTermMonths: 5 }));
     expect(result).not.toContain("5");
   });
 
-  it("handles large year values", () => {
-    const result = getMndaTermText(makeValues({ mndaTermType: "expires", mndaTermYears: 10 }));
-    expect(result).toBe("10 years from Effective Date");
+  it("handles large month values", () => {
+    const result = getMndaTermText(makeValues({ mndaTermType: "expires", mndaTermMonths: 24 }));
+    expect(result).toBe("24 months from Effective Date");
   });
 });
 
 // ─── getConfidentialityTermText ──────────────────────────────────────────────
 
 describe("getConfidentialityTermText", () => {
-  it("returns singular '1 year' for confidentialityTermYears=1", () => {
+  it("returns singular '1 month' for confidentialityTermMonths=1", () => {
     const result = getConfidentialityTermText(
-      makeValues({ confidentialityTermType: "years", confidentialityTermYears: 1 })
+      makeValues({ confidentialityTermType: "months", confidentialityTermMonths: 1 })
     );
-    expect(result).toBe("1 year from Effective Date");
+    expect(result).toBe("1 month from Effective Date");
   });
 
-  it("returns plural '3 years' for confidentialityTermYears=3", () => {
+  it("returns plural '3 months' for confidentialityTermMonths=3", () => {
     const result = getConfidentialityTermText(
-      makeValues({ confidentialityTermType: "years", confidentialityTermYears: 3 })
+      makeValues({ confidentialityTermType: "months", confidentialityTermMonths: 3 })
     );
-    expect(result).toBe("3 years from Effective Date");
+    expect(result).toBe("3 months from Effective Date");
   });
 
   it("returns 'in perpetuity' when type is perpetual", () => {
@@ -98,9 +98,9 @@ describe("getConfidentialityTermText", () => {
     expect(result).toBe("in perpetuity");
   });
 
-  it("ignores confidentialityTermYears when type is perpetual", () => {
+  it("ignores confidentialityTermMonths when type is perpetual", () => {
     const result = getConfidentialityTermText(
-      makeValues({ confidentialityTermType: "perpetual", confidentialityTermYears: 99 })
+      makeValues({ confidentialityTermType: "perpetual", confidentialityTermMonths: 99 })
     );
     expect(result).not.toContain("99");
   });
@@ -138,9 +138,9 @@ describe("substituteStandardTerms", () => {
   it("replaces MNDA Term with computed text (expires)", () => {
     const result = substituteStandardTerms(
       TEMPLATE,
-      makeValues({ mndaTermType: "expires", mndaTermYears: 2 })
+      makeValues({ mndaTermType: "expires", mndaTermMonths: 24 })
     );
-    expect(result).toContain("2 years from Effective Date");
+    expect(result).toContain("24 months from Effective Date");
   });
 
   it("replaces MNDA Term with perpetual text", () => {
@@ -151,12 +151,12 @@ describe("substituteStandardTerms", () => {
     expect(result).toContain("terminated");
   });
 
-  it("replaces Term of Confidentiality with computed years text", () => {
+  it("replaces Term of Confidentiality with computed months text", () => {
     const result = substituteStandardTerms(
       TEMPLATE,
-      makeValues({ confidentialityTermType: "years", confidentialityTermYears: 3 })
+      makeValues({ confidentialityTermType: "months", confidentialityTermMonths: 36 })
     );
-    expect(result).toContain("3 years from Effective Date");
+    expect(result).toContain("36 months from Effective Date");
   });
 
   it("replaces Term of Confidentiality with 'in perpetuity'", () => {

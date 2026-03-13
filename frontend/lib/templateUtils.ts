@@ -1,10 +1,14 @@
+import { formatDate, escapeHtml } from "@/lib/docUtils";
+
+export { formatDate };
+
 export interface NdaFormValues {
   purpose: string;
   effectiveDate: string;
   mndaTermType: "expires" | "perpetual";
-  mndaTermYears: number;
-  confidentialityTermType: "years" | "perpetual";
-  confidentialityTermYears: number;
+  mndaTermMonths: number;
+  confidentialityTermType: "months" | "perpetual";
+  confidentialityTermMonths: number;
   governingLaw: string;
   jurisdiction: string;
   party1Company: string;
@@ -25,9 +29,9 @@ export function getDefaultFormValues(): NdaFormValues {
     purpose: "Evaluating whether to enter into a business relationship with the other party.",
     effectiveDate: new Date().toISOString().split("T")[0],
     mndaTermType: "expires",
-    mndaTermYears: 1,
-    confidentialityTermType: "years",
-    confidentialityTermYears: 1,
+    mndaTermMonths: 12,
+    confidentialityTermType: "months",
+    confidentialityTermMonths: 12,
     governingLaw: "",
     jurisdiction: "",
     party1Company: "",
@@ -43,39 +47,20 @@ export function getDefaultFormValues(): NdaFormValues {
   };
 }
 
-export function formatDate(dateStr: string): string {
-  if (!dateStr) return "";
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
 export function getMndaTermText(values: NdaFormValues): string {
   if (values.mndaTermType === "expires") {
-    const years = Math.max(1, values.mndaTermYears);
-    return `${years} year${years !== 1 ? "s" : ""} from Effective Date`;
+    const months = Math.max(1, values.mndaTermMonths);
+    return `${months} month${months !== 1 ? "s" : ""} from Effective Date`;
   }
   return "until terminated in accordance with the terms of the MNDA";
 }
 
 export function getConfidentialityTermText(values: NdaFormValues): string {
-  if (values.confidentialityTermType === "years") {
-    const years = Math.max(1, values.confidentialityTermYears);
-    return `${years} year${years !== 1 ? "s" : ""} from Effective Date`;
+  if (values.confidentialityTermType === "months") {
+    const months = Math.max(1, values.confidentialityTermMonths);
+    return `${months} month${months !== 1 ? "s" : ""} from Effective Date`;
   }
   return "in perpetuity";
-}
-
-// Escapes a plain-text user value so it is safe to embed inside HTML.
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
 }
 
 export function substituteStandardTerms(template: string, values: NdaFormValues): string {
