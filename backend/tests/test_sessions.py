@@ -45,7 +45,7 @@ def test_list_sessions_returns_generic_session(client):
     _signup(client)
     with patch("app.routers.doc_chat.call_generic_ai") as mock_ai:
         mock_ai.return_value = GenericAiTurn(
-            message="Hi!", fields_update=GenericFieldsUpdate(), is_complete=False
+            next_question="Hi!", fields_update=GenericFieldsUpdate(), is_complete=False
         )
         _doc_session(client, "csa")
     res = client.get("/api/sessions")
@@ -61,7 +61,7 @@ def test_list_sessions_multiple(client):
     _nda_session(client)
     with patch("app.routers.doc_chat.call_generic_ai") as mock_ai:
         mock_ai.return_value = GenericAiTurn(
-            message="Hi!", fields_update=GenericFieldsUpdate(), is_complete=False
+            next_question="Hi!", fields_update=GenericFieldsUpdate(), is_complete=False
         )
         _doc_session(client, "csa")
     res = client.get("/api/sessions")
